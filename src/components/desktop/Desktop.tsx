@@ -345,6 +345,42 @@ export default function Desktop({ openWindows, toggleWindow, photos }: DesktopPr
                 </form>
             </div>
           )}
+          {title === "Secrets.txt" && (
+            <div className="space-y-4 font-mono h-full">
+                <div className="border-b-2 border-black pb-2 flex justify-between items-center">
+                    <h2 className="text-xl font-bold uppercase text-red-600 tracking-widest">CLASSIFIED</h2>
+                    <div className="border-2 border-red-600 text-red-600 px-2 py-1 text-xs font-bold uppercase -rotate-6 opacity-80">
+                        Top Secret
+                    </div>
+                </div>
+                <div className="bg-[#f4f1ea] p-6 font-mono text-sm h-64 overflow-y-auto border border-gray-300 shadow-inner relative">
+                     <div className="space-y-4 relative z-10">
+                        <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
+                            <span className="font-bold text-gray-500">CODENAME:</span>
+                            <span className="font-bold">PunkCompiler</span>
+                            
+                            <span className="font-bold text-gray-500">STATUS:</span>
+                            <span className="font-bold text-green-700">ACTIVE</span>
+                            
+                            <span className="font-bold text-gray-500">OBJECTIVE:</span>
+                            <span>BUILD COOL STUFF</span>
+                        </div>
+
+                        <div className="border-t-2 border-dashed border-gray-300 my-2"></div>
+
+                        <div>
+                            <p className="font-bold text-gray-500 mb-1">INTERCEPTED TRANSMISSION:</p>
+                            <p className="text-lg font-serif italic text-gray-800">"Stay hungry, stay foolish."</p>
+                        </div>
+                        
+                        <div className="mt-4 p-3 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                            <p className="font-bold">🎉 EASTER EGG FOUND</p>
+                            <p className="text-xs mt-1">You entered the Konami Code. Here is a cookie: 🍪</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          )}
           {title === "Photos" && (
             <div className="space-y-4">
                 <div className="border-b-2 border-black pb-2 flex justify-between items-end">
