@@ -40,9 +40,9 @@ export default function Dock({ onOpenWindow }: DockProps) {
   ];
 
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4 md:px-0">
       <motion.div
-        className="flex items-end gap-4 px-6 py-3 bg-white/80 backdrop-blur-md border-2 border-black rounded-2xl shadow-lg"
+        className="flex items-end justify-center gap-2 md:gap-4 px-4 py-2 md:px-6 md:py-3 bg-white/80 backdrop-blur-md border-2 border-black rounded-2xl shadow-lg w-fit mx-auto"
         initial={{ y: 100 }}
         animate={{ y: 0 }}
         transition={{ delay: 2, type: "spring", stiffness: 200, damping: 20 }}
@@ -55,10 +55,10 @@ export default function Dock({ onOpenWindow }: DockProps) {
             whileTap={{ scale: 0.9 }}
             onClick={item.action}
           >
-            <div className="p-3 bg-white border-2 border-black rounded-xl shadow-sm group-hover:shadow-md transition-all">
-              <item.icon size={24} />
+            <div className="p-2 md:p-3 bg-white border-2 border-black rounded-xl shadow-sm group-hover:shadow-md transition-all">
+              <item.icon size={20} className="md:w-6 md:h-6" />
             </div>
-            <span className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs px-2 py-1 rounded font-mono whitespace-nowrap">
+            <span className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs px-2 py-1 rounded font-mono whitespace-nowrap hidden md:block">
               {item.label}
             </span>
           </motion.div>

@@ -1,11 +1,12 @@
 "use client";
 
 import { Folder, FileText, Mail } from "lucide-react";
+import { MouseEvent } from "react";
 
 interface DesktopIconProps {
   label: string;
   type: "folder" | "file" | "mail";
-  onClick?: () => void;
+  onClick?: (e: MouseEvent) => void;
   selected?: boolean;
 }
 

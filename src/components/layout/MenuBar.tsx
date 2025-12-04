@@ -34,10 +34,10 @@ export default function MenuBar({ onOpenContact, onOpenMessage, onOpenPhotos }: 
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-8 bg-white border-b-2 border-black flex items-center justify-between px-4 z-40 font-mono text-sm select-none" onClick={() => setActiveMenu(null)}>
-      <div className="flex items-center gap-6 relative">
+    <div className="fixed top-0 left-0 right-0 h-8 bg-white border-b-2 border-black flex items-center justify-between px-2 md:px-4 z-40 font-mono text-sm select-none" onClick={() => setActiveMenu(null)}>
+      <div className="flex items-center gap-3 md:gap-6 relative">
         <span className="text-lg"></span>
-        <span className="font-bold cursor-pointer hover:underline">File</span>
+        <span className="font-bold cursor-pointer hover:underline hidden md:block">File</span>
         
         <div className="relative" onClick={(e) => e.stopPropagation()}>
             <span className={`cursor-pointer hover:underline ${activeMenu === 'edit' ? 'bg-black text-white px-1' : ''}`} onClick={() => toggleMenu('edit')}>Edit</span>
@@ -63,14 +63,14 @@ export default function MenuBar({ onOpenContact, onOpenMessage, onOpenPhotos }: 
 
         <span className="cursor-pointer hover:underline" onClick={onOpenContact}>Help</span>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 md:gap-4">
         <button 
-            className="bg-black text-white px-3 py-0.5 hover:bg-gray-800 transition-colors uppercase text-xs font-bold tracking-wider"
+            className="bg-black text-white px-2 md:px-3 py-0.5 hover:bg-gray-800 transition-colors uppercase text-[10px] md:text-xs font-bold tracking-wider whitespace-nowrap"
             onClick={onOpenContact}
         >
             Hire Me
         </button>
-        <span>{time}</span>
+        <span className="hidden md:block">{time}</span>
       </div>
     </div>
   );

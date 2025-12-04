@@ -23,7 +23,7 @@ export default function Window({ title, children, isOpen, onClose, className = "
       initial={{ scale: 0.9, opacity: 0, x: center ? "-50%" : 0, y: center ? "-50%" : 0 }}
       animate={{ scale: 1, opacity: 1, x: center ? "-50%" : 0, y: center ? "-50%" : 0 }}
       exit={{ scale: 0.9, opacity: 0, x: center ? "-50%" : 0, y: center ? "-50%" : 0 }}
-      className={`absolute ${center ? "top-1/2 left-1/2" : "top-20 left-20"} bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-[600px] max-w-[90vw] z-30 ${className}`}
+      className={`absolute ${center ? "top-1/2 left-1/2" : "top-10 left-2 md:top-20 md:left-20"} bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-[95vw] md:w-[600px] max-w-[95vw] z-30 ${className}`}
     >
       {/* Title Bar */}
       <div className="h-8 border-b-2 border-black flex items-center justify-between px-2 bg-white handle cursor-move">
@@ -44,7 +44,7 @@ export default function Window({ title, children, isOpen, onClose, className = "
       </div>
 
       {/* Content */}
-      <div className="p-4 font-mono text-sm h-[400px] overflow-y-auto custom-scrollbar">
+      <div className="p-4 font-mono text-sm h-[60vh] md:h-[400px] overflow-y-auto custom-scrollbar">
         {children}
       </div>
     </motion.div>

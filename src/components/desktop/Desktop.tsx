@@ -42,35 +42,38 @@ export default function Desktop({ openWindows, toggleWindow, photos }: DesktopPr
 
   return (
     <div
-      className="flex-1 relative p-4 overflow-hidden"
-      style={{
-        backgroundImage: "url('/Background.png'), radial-gradient(rgba(0, 0, 0, 0.5) 1px, transparent 1px)",
-        backgroundSize: "35%, 20px 20px",
-        backgroundPosition: "center, 0 0",
-        backgroundRepeat: "no-repeat, repeat",
-        backgroundColor: "#FFFFFF"
-      }}
+      className="flex-1 relative p-4 overflow-y-auto md:overflow-hidden flex flex-col md:block desktop-background"
       onClick={() => setSelectedIcon(null)}
     >
       {/* Widgets Area */}
-      <div className="absolute top-4 right-4 flex flex-col gap-4 items-end z-10 pointer-events-none">
-        <div className="pointer-events-auto">
+      <div className="relative md:absolute md:top-4 md:right-4 flex flex-row md:flex-col gap-4 items-end md:items-end z-10 pointer-events-none w-full md:w-auto mt-auto md:mt-0 order-2 md:order-0 pb-24 md:pb-0 justify-center md:justify-start">
+        <div className="pointer-events-auto w-auto flex justify-center md:block">
             <ProfileWidget />
         </div>
-        <div className="pointer-events-auto">
+        <div className="pointer-events-auto w-auto flex justify-center md:block">
             <StatusWidget />
         </div>
       </div>
 
       {/* Icons Grid */}
-      <div className="absolute top-4 left-4 flex flex-col flex-wrap gap-4 h-[calc(100%-2rem)] content-start items-start w-fit">
+      <div className="relative md:absolute md:top-4 md:left-4 flex flex-row flex-wrap md:flex-col gap-4 md:h-[calc(100%-2rem)] content-start items-start w-full md:w-fit justify-center md:justify-start order-1 md:order-0 mb-4 md:mb-0">
          {icons.map((icon) => (
-          <div key={icon.label} onDoubleClick={() => toggleWindow(icon.label)}>
+          <div key={icon.label} onDoubleClick={() => toggleWindow(icon.label)} className="md:block hidden">
               <DesktopIcon
                 label={icon.label}
                 type={icon.type}
                 selected={selectedIcon === icon.label}
-                onClick={() => setSelectedIcon(icon.label)}
+                onClick={(e) => { e.stopPropagation(); setSelectedIcon(icon.label); }}
+              />
+          </div>
+        ))}
+         {icons.map((icon) => (
+          <div key={icon.label + "-mobile"} className="md:hidden block">
+              <DesktopIcon
+                label={icon.label}
+                type={icon.type}
+                selected={selectedIcon === icon.label}
+                onClick={() => toggleWindow(icon.label)}
               />
           </div>
         ))}
