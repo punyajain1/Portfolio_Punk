@@ -1,40 +1,21 @@
-"use client";
-
-import { useState } from "react";
-import LoadingScreen from "@/components/LoadingScreen";
-import MenuBar from "@/components/layout/MenuBar";
-import Desktop from "@/components/desktop/Desktop";
-import Dock from "@/components/dock/Dock";
+import fs from "fs";
+import path from "path";
+import ClientHome from "@/components/ClientHome";
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [openWindows, setOpenWindows] = useState<string[]>(["About Me.txt"]);
+  const photosDir = path.join(process.cwd(), "public/photos");
+  let photos: string[] = [];
 
-  const toggleWindow = (title: string) => {
-    if (openWindows.includes(title)) {
-      setOpenWindows(openWindows.filter((w) => w !== title));
-    } else {
-      setOpenWindows([...openWindows, title]);
+  try {
+    if (fs.existsSync(photosDir)) {
+      photos = fs.readdirSync(photosDir).filter(file => {
+        const ext = path.extname(file).toLowerCase();
+        return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+      });
     }
-  };
+  } catch (error) {
+    console.error("Error reading photos directory:", error);
+  }
 
-  return (
-    <main className="h-screen w-screen overflow-hidden flex flex-col font-sans text-black bg-white selection:bg-black selection:text-white">
-      {isLoading ? (
-        <LoadingScreen onComplete={() => setIsLoading(false)} />
-      ) : (
-        <>
-          <MenuBar 
-            onOpenContact={() => toggleWindow("Contact Info.txt")} 
-            onOpenMessage={() => toggleWindow("Leave a Message")}
-            onOpenPhotos={() => toggleWindow("Photos")}
-          />
-          <div className="flex-1 pt-8 flex flex-col relative">
-            <Desktop openWindows={openWindows} toggleWindow={toggleWindow} />
-            <Dock onOpenWindow={toggleWindow} />
-          </div>
-        </>
-      )}
-    </main>
-  );
+  return <ClientHome photos={photos} />;
 }
