@@ -1,16 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import DesktopIcon from "./DesktopIcon";
 import Window from "../window/Window";
 import ProfileWidget from "../widgets/ProfileWidget";
 import StatusWidget from "../widgets/StatusWidget";
+import BSOD from "../BSOD";
+import Terminal from "../apps/Terminal";
+import Snake from "../apps/Snake";
 
 interface DesktopProps {
   openWindows: string[];
   toggleWindow: (title: string) => void;
   photos: string[];
+  onMatrix: () => void;
 }
 
 type IconType = "file" | "folder";
@@ -20,9 +24,115 @@ interface IconItem {
     type: IconType;
 }
 
-export default function Desktop({ openWindows, toggleWindow, photos }: DesktopProps) {
+export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }: DesktopProps) {
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [showBSOD, setShowBSOD] = useState(false);
+  const [gravityEnabled, setGravityEnabled] = useState(false);
+  
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const clickCountRef = useRef(0);
+
+  // Gravity Effect
+  useEffect(() => {
+    if (!gravityEnabled) return;
+
+    const elements = document.querySelectorAll('.gravity-element');
+    const bodies: { 
+        element: HTMLElement, 
+        x: number, 
+        y: number, 
+        vx: number, 
+        vy: number, 
+        width: number, 
+        height: number 
+    }[] = [];
+
+    // Initialize bodies
+    elements.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        const htmlEl = el as HTMLElement;
+        
+        // Set initial fixed position to prevent layout shift immediately
+        htmlEl.style.position = 'fixed';
+        htmlEl.style.left = `${rect.left}px`;
+        htmlEl.style.top = `${rect.top}px`;
+        htmlEl.style.width = `${rect.width}px`;
+        htmlEl.style.height = `${rect.height}px`;
+        htmlEl.style.margin = '0';
+        htmlEl.style.zIndex = '100';
+        htmlEl.style.transition = 'none'; // Disable transitions for physics
+
+        bodies.push({
+            element: htmlEl,
+            x: rect.left,
+            y: rect.top,
+            vx: (Math.random() - 0.5) * 10, // Random horizontal velocity
+            vy: 0,
+            width: rect.width,
+            height: rect.height
+        });
+    });
+
+    let animationId: number;
+    const gravity = 0.5;
+    const bounce = 0.7;
+    const friction = 0.99;
+
+    const update = () => {
+        bodies.forEach(body => {
+            body.vy += gravity;
+            body.vx *= friction;
+            
+            body.x += body.vx;
+            body.y += body.vy;
+
+            // Floor collision
+            if (body.y + body.height > window.innerHeight) {
+                body.y = window.innerHeight - body.height;
+                body.vy *= -bounce;
+            }
+
+            // Wall collision
+            if (body.x < 0) {
+                body.x = 0;
+                body.vx *= -bounce;
+            }
+            if (body.x + body.width > window.innerWidth) {
+                body.x = window.innerWidth - body.width;
+                body.vx *= -bounce;
+            }
+
+            // Apply position
+            body.element.style.transform = `translate(${body.x - parseFloat(body.element.style.left)}px, ${body.y - parseFloat(body.element.style.top)}px)`;
+        });
+
+        animationId = requestAnimationFrame(update);
+    };
+
+    update();
+
+    return () => {
+        cancelAnimationFrame(animationId);
+    };
+  }, [gravityEnabled]);
+
+  const handleStatusClick = () => {
+    clickCountRef.current += 1;
+    
+    if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+    }
+
+    if (clickCountRef.current >= 5) {
+        setShowBSOD(true);
+        clickCountRef.current = 0;
+    } else {
+        clickTimeoutRef.current = setTimeout(() => {
+            clickCountRef.current = 0;
+        }, 500); // Reset if no click for 500ms
+    }
+  };
 
   const icons: IconItem[] = [
     { label: "About Me.txt", type: "file" },
@@ -48,14 +158,23 @@ export default function Desktop({ openWindows, toggleWindow, photos }: DesktopPr
       {/* Widgets Area */}
       <div className="relative md:absolute md:top-4 md:right-4 flex flex-row md:flex-col gap-4 items-end md:items-end z-10 pointer-events-none w-full md:w-auto mt-auto md:mt-0 order-2 md:order-0 pb-24 md:pb-0 justify-center md:justify-start">
         <div className="pointer-events-auto w-auto flex justify-center md:block">
-            <ProfileWidget />
+             <ProfileWidget />
         </div>
-        <div className="pointer-events-auto w-auto flex justify-center md:block">
-            <StatusWidget />
+        <div 
+            className="pointer-events-auto w-auto flex justify-center md:block cursor-pointer active:scale-95 transition-transform"
+            onClick={(e) => {
+                e.stopPropagation();
+                handleStatusClick();
+            }}
+        >
+             <StatusWidget />
         </div>
       </div>
 
-      {/* Icons Grid */}
+      {/* BSOD Easter Egg */}
+      {showBSOD && <BSOD onClose={() => setShowBSOD(false)} />}
+
+      {/* Desktop Icons Grid */}
       <div className="relative md:absolute md:top-4 md:left-4 flex flex-row flex-wrap md:flex-col gap-4 md:h-[calc(100%-2rem)] content-start items-start w-full md:w-fit justify-center md:justify-start order-1 md:order-0 mb-4 md:mb-0">
          {icons.map((icon) => (
           <div key={icon.label} onDoubleClick={() => toggleWindow(icon.label)} className="md:block hidden">
@@ -379,6 +498,24 @@ export default function Desktop({ openWindows, toggleWindow, photos }: DesktopPr
                         <div className="mt-4 p-3 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                             <p className="font-bold">🎉 EASTER EGG FOUND</p>
                             <p className="text-xs mt-1">You entered the Konami Code. Here is a cookie: 🍪</p>
+                            <p className="text-xs mt-2 text-gray-500 border-t border-gray-200 pt-2">
+                                HINT 1: The system is unstable. Clicking the status widget too fast might cause a crash...
+                            </p>
+                            <p className="text-xs mt-1 text-gray-500">
+                                HINT 2: The Apple logo looks a bit... retro today. Maybe give it a few taps?
+                            </p>
+                            <p className="text-xs mt-1 text-gray-500">
+                                HINT 3: Time flies when you're having fun. Double check the time?
+                            </p>
+                            <p className="text-xs mt-1 text-gray-500">
+                                HINT 4: Follow the white rabbit in the terminal... or just type 'matrix'.
+                            </p>
+                            <p className="text-xs mt-1 text-gray-500">
+                                HINT 5: Bored? Type 'snake' in the terminal for a classic game.
+                            </p>
+                            <p className="text-xs mt-1 text-gray-500">
+                                HINT 6: Warning: The 'gravity' command in terminal is experimental. Use at your own risk.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -411,6 +548,17 @@ export default function Desktop({ openWindows, toggleWindow, photos }: DesktopPr
                     )}
                 </div>
             </div>
+          )}
+          {title === "Terminal" && (
+            <Terminal 
+                onClose={() => toggleWindow("Terminal")} 
+                onMatrix={onMatrix} 
+                onOpenSnake={() => toggleWindow("Snake")}
+                onGravity={() => setGravityEnabled(true)}
+            />
+          )}
+          {title === "Snake" && (
+            <Snake onClose={() => toggleWindow("Snake")} />
           )}
         </Window>
       ))}

@@ -6,11 +6,24 @@ interface MenuBarProps {
   onOpenContact: () => void;
   onOpenMessage: () => void;
   onOpenPhotos: () => void;
+  onOpenTerminal: () => void;
+  toggleRetro: () => void;
 }
 
-export default function MenuBar({ onOpenContact, onOpenMessage, onOpenPhotos }: MenuBarProps) {
+export default function MenuBar({ onOpenContact, onOpenMessage, onOpenPhotos, onOpenTerminal, toggleRetro }: MenuBarProps) {
   const [time, setTime] = useState("");
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [appleClickCount, setAppleClickCount] = useState(0);
+
+  useEffect(() => {
+    if (appleClickCount === 3) {
+        toggleRetro();
+        setAppleClickCount(0);
+    }
+    
+    const timer = setTimeout(() => setAppleClickCount(0), 1000);
+    return () => clearTimeout(timer);
+  }, [appleClickCount, toggleRetro]);
 
   useEffect(() => {
     const updateTime = () => {
@@ -36,7 +49,15 @@ export default function MenuBar({ onOpenContact, onOpenMessage, onOpenPhotos }: 
   return (
     <div className="fixed top-0 left-0 right-0 h-8 bg-white border-b-2 border-black flex items-center justify-between px-2 md:px-4 z-40 font-mono text-sm select-none" onClick={() => setActiveMenu(null)}>
       <div className="flex items-center gap-3 md:gap-6 relative">
-        <span className="text-lg"></span>
+        <span 
+            className="text-lg cursor-pointer hover:opacity-70 active:scale-90 transition-transform select-none"
+            onClick={(e) => {
+                e.stopPropagation();
+                setAppleClickCount(prev => prev + 1);
+            }}
+        >
+            
+        </span>
         <span className="font-bold cursor-pointer hover:underline hidden md:block">File</span>
         
         <div className="relative" onClick={(e) => e.stopPropagation()}>
@@ -70,7 +91,13 @@ export default function MenuBar({ onOpenContact, onOpenMessage, onOpenPhotos }: 
         >
             Hire Me
         </button>
-        <span className="hidden md:block">{time}</span>
+        <span 
+            className="hidden md:block cursor-pointer select-none hover:bg-black hover:text-white px-1 transition-colors"
+            onDoubleClick={onOpenTerminal}
+            title="Double click for Terminal"
+        >
+            {time}
+        </span>
       </div>
     </div>
   );

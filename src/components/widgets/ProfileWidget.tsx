@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function ProfileWidget() {
   return (
-    <div className="w-full max-w-[240px] md:max-w-[320px] bg-white border-2 border-black p-4 md:p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[4px] hover:translate-y-[4px] transition-all cursor-default">
+    <div className="w-full max-w-[240px] md:max-w-[320px] bg-white border-2 border-black p-4 md:p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[4px] hover:translate-y-[4px] transition-all cursor-default gravity-element">
       <div className="">
         <div className="w-full h-40 md:h-60 border-2 border-black  bg-gray-100 overflow-hidden relative mb-4">
             <Image 

@@ -5,6 +5,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import MenuBar from "@/components/layout/MenuBar";
 import Desktop from "@/components/desktop/Desktop";
 import Dock from "@/components/dock/Dock";
+import MatrixRain from "@/components/MatrixRain";
 
 interface ClientHomeProps {
   photos: string[];
@@ -13,6 +14,8 @@ interface ClientHomeProps {
 export default function ClientHome({ photos }: ClientHomeProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [openWindows, setOpenWindows] = useState<string[]>(["About Me.txt"]);
+  const [isRetro, setIsRetro] = useState(false);
+  const [showMatrix, setShowMatrix] = useState(false);
 
   // Konami Code Easter Egg
   useEffect(() => {
@@ -57,7 +60,7 @@ export default function ClientHome({ photos }: ClientHomeProps) {
   };
 
   return (
-    <main className="h-screen w-screen overflow-hidden flex flex-col font-sans text-black bg-white selection:bg-black selection:text-white">
+    <main className={`h-screen w-screen overflow-hidden flex flex-col font-sans text-black bg-white selection:bg-black selection:text-white ${isRetro ? 'crt-mode' : ''}`}>
       {isLoading ? (
         <LoadingScreen onComplete={() => setIsLoading(false)} />
       ) : (
@@ -66,11 +69,19 @@ export default function ClientHome({ photos }: ClientHomeProps) {
             onOpenContact={() => toggleWindow("Contact Info.txt")} 
             onOpenMessage={() => toggleWindow("Leave a Message")}
             onOpenPhotos={() => toggleWindow("Photos")}
+            onOpenTerminal={() => toggleWindow("Terminal")}
+            toggleRetro={() => setIsRetro(!isRetro)}
           />
           <div className="flex-1 pt-8 flex flex-col relative">
-            <Desktop openWindows={openWindows} toggleWindow={toggleWindow} photos={photos} />
+            <Desktop 
+                openWindows={openWindows} 
+                toggleWindow={toggleWindow} 
+                photos={photos} 
+                onMatrix={() => setShowMatrix(true)}
+            />
             <Dock onOpenWindow={toggleWindow} />
           </div>
+          {showMatrix && <MatrixRain onClose={() => setShowMatrix(false)} />}
         </>
       )}
     </main>

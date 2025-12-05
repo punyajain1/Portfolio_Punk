@@ -48,7 +48,61 @@ body {
 
 @media (min-width: 768px) {
   .desktop-background {
-    background-size: clamp(300px, 50%, 500px), 20px 20px;
-    background-position: center, 0 0;
+    background-size: clamp(300px, 50%, 600px), 20px 20px;
   }
+}
+
+/* CRT Effect */
+.crt-mode {
+  filter: sepia(0.2) contrast(1.1) brightness(1.1) saturate(1.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.crt-mode::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(
+      rgba(18, 16, 16, 0) 50%,
+      rgba(0, 0, 0, 0.1) 50%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 0, 0, 0.06),
+      rgba(0, 255, 0, 0.02),
+      rgba(0, 0, 255, 0.06)
+    );
+  z-index: 9999;
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+  animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+  0% { opacity: 0.97; }
+  5% { opacity: 0.95; }
+  10% { opacity: 0.9; }
+  15% { opacity: 0.95; }
+  20% { opacity: 0.99; }
+  25% { opacity: 0.95; }
+  30% { opacity: 0.9; }
+  35% { opacity: 0.96; }
+  40% { opacity: 0.98; }
+  45% { opacity: 0.95; }
+  50% { opacity: 0.99; }
+  55% { opacity: 0.93; }
+  60% { opacity: 0.9; }
+  65% { opacity: 0.96; }
+  70% { opacity: 1; }
+  75% { opacity: 0.97; }
+  80% { opacity: 0.95; }
+  85% { opacity: 0.92; }
+  90% { opacity: 0.96; }
+  95% { opacity: 0.99; }
+  100% { opacity: 0.94; }
 }

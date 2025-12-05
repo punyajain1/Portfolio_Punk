@@ -15,7 +15,7 @@ export default function DesktopIcon({ label, type, onClick, selected }: DesktopI
 
   return (
     <div
-      className={`flex flex-col items-center gap-1 w-24 p-2 cursor-pointer group ${
+      className={`flex flex-col items-center gap-1 w-24 p-2 cursor-pointer group gravity-element ${
         selected ? "" : "hover:bg-gray-200"
       }`}
       onClick={onClick}
