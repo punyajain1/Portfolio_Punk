@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { X, Minus, Square } from "lucide-react";
-import { ReactNode } from "react";
+import { ReactNode, useRef, useState, useEffect } from "react";
 
 interface WindowProps {
   title: string;
@@ -11,18 +11,41 @@ interface WindowProps {
   onClose: () => void;
   className?: string;
   center?: boolean;
+  index?: number;
 }
 
-export default function Window({ title, children, isOpen, onClose, className = "", center = false }: WindowProps) {
+export default function Window({ title, children, isOpen, onClose, className = "", center = false, index = 0 }: WindowProps) {
+  const initialIndex = useRef(index);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Add some randomness to the scatter so even same-index windows don't perfectly overlap
+  const randomOffset = useRef({
+    x: Math.random() * 40 - 20,
+    y: Math.random() * 40 - 20
+  });
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   if (!isOpen) return null;
+
+  // Calculate position offsets
+  // On mobile, we keep it tighter. On desktop, we scatter more.
+  const baseOffset = isMobile ? 20 : 40;
+  const scatterX = center ? "-50%" : (initialIndex.current * baseOffset) + randomOffset.current.x;
+  const scatterY = center ? "-50%" : (initialIndex.current * baseOffset) + randomOffset.current.y;
 
   return (
     <motion.div
       drag
       dragMomentum={false}
-      initial={{ scale: 0.9, opacity: 0, x: center ? "-50%" : 0, y: center ? "-50%" : 0 }}
-      animate={{ scale: 1, opacity: 1, x: center ? "-50%" : 0, y: center ? "-50%" : 0 }}
-      exit={{ scale: 0.9, opacity: 0, x: center ? "-50%" : 0, y: center ? "-50%" : 0 }}
+      initial={{ scale: 0.9, opacity: 0, x: scatterX, y: scatterY }}
+      animate={{ scale: 1, opacity: 1, x: scatterX, y: scatterY }}
+      exit={{ scale: 0.9, opacity: 0, x: scatterX, y: scatterY }}
       className={`absolute ${center ? "top-1/2 left-1/2" : "top-10 left-2 md:top-20 md:left-20"} bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-[95vw] md:w-[600px] max-w-[95vw] z-30 gravity-element ${className}`}
     >
       {/* Title Bar */}

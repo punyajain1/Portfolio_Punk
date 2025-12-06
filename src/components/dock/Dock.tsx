@@ -1,10 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Folder, Mail } from "lucide-react";
 
 interface DockProps {
   onOpenWindow: (title: string) => void;
+  isSynthwave?: boolean;
 }
 
 const XIcon = ({ size = 24 }: { size?: number }) => (
@@ -31,7 +32,7 @@ const SpotifyIcon = ({ size = 24 }: { size?: number }) => (
   </svg>
 );
 
-export default function Dock({ onOpenWindow }: DockProps) {
+export default function Dock({ onOpenWindow, isSynthwave }: DockProps) {
   const icons = [
     { icon: Folder, label: "Files", action: () => onOpenWindow("Macintosh HD") },
     { icon: XIcon, label: "X", action: () => window.open("https://x.com/PunkCompiler", "_blank") },
@@ -42,7 +43,7 @@ export default function Dock({ onOpenWindow }: DockProps) {
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4 md:px-0">
       <motion.div
-        className="flex items-end justify-center gap-2 md:gap-4 px-4 py-2 md:px-6 md:py-3 bg-white/80 backdrop-blur-md border-2 border-black rounded-2xl shadow-lg w-fit mx-auto"
+        className={`flex items-end justify-center gap-2 md:gap-4 px-4 py-2 md:px-6 md:py-3 backdrop-blur-md border-2 rounded-2xl shadow-lg w-fit mx-auto transition-colors duration-500 ${isSynthwave ? 'bg-black/80 border-[#00f7ff] shadow-[0_0_20px_rgba(0,247,255,0.3)]' : 'bg-white/80 border-black'}`}
         initial={{ y: 100 }}
         animate={{ y: 0 }}
         transition={{ delay: 2, type: "spring", stiffness: 200, damping: 20 }}
@@ -55,10 +56,10 @@ export default function Dock({ onOpenWindow }: DockProps) {
             whileTap={{ scale: 0.9 }}
             onClick={item.action}
           >
-            <div className="p-2 md:p-3 bg-white border-2 border-black rounded-xl shadow-sm group-hover:shadow-md transition-all">
+            <div className={`p-2 md:p-3 rounded-xl border-2 shadow-sm group-hover:shadow-md transition-all ${isSynthwave ? 'bg-black border-[#ff0055] text-[#00f7ff] hover:bg-[#ff0055] hover:text-black hover:border-[#00f7ff] shadow-[0_0_10px_#ff0055]' : 'bg-white border-black hover:bg-black hover:text-white'}`}>
               <item.icon size={20} className="md:w-6 md:h-6" />
             </div>
-            <span className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs px-2 py-1 rounded font-mono whitespace-nowrap hidden md:block">
+            <span className={`absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity text-xs px-2 py-1 rounded font-mono whitespace-nowrap hidden md:block ${isSynthwave ? 'bg-[#00f7ff] text-black border border-[#ff0055]' : 'bg-black text-white'}`}>
               {item.label}
             </span>
           </motion.div>

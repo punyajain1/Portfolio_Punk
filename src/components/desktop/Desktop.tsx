@@ -2,19 +2,24 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import { AnimatePresence, motion } from "framer-motion";
 import DesktopIcon from "./DesktopIcon";
 import Window from "../window/Window";
 import ProfileWidget from "../widgets/ProfileWidget";
 import StatusWidget from "../widgets/StatusWidget";
+import MusicPlayer from "../widgets/MusicPlayer";
 import BSOD from "../BSOD";
 import Terminal from "../apps/Terminal";
 import Snake from "../apps/Snake";
+import SynthwaveBackground from "../SynthwaveBackground";
 
 interface DesktopProps {
   openWindows: string[];
   toggleWindow: (title: string) => void;
   photos: string[];
   onMatrix: () => void;
+  isSynthwave: boolean;
+  setIsSynthwave: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 type IconType = "file" | "folder";
@@ -24,14 +29,152 @@ interface IconItem {
     type: IconType;
 }
 
-export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }: DesktopProps) {
+interface SecretFileContentProps {
+  isSynthwave: boolean;
+  onToggle: () => void;
+}
+
+function SecretFileContent({ isSynthwave, onToggle }: SecretFileContentProps) {
+  const [passcode, setPasscode] = useState("");
+  const [unlocked, setUnlocked] = useState(false);
+  const [error, setError] = useState(false);
+
+  const handleDecrypt = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passcode.toUpperCase() === "PUNK") {
+      setUnlocked(true);
+      setError(false);
+    } else {
+      setError(true);
+      setPasscode("");
+    }
+  };
+
+  if (unlocked) {
+    return (
+      <div className="space-y-6 text-green-600 font-mono h-full flex flex-col justify-center items-center text-center bg-black/5 p-4">
+        <h2 className="text-2xl font-bold uppercase border-b-2 border-green-600 pb-2 mb-2">ACCESS GRANTED</h2>
+        
+        <div className="space-y-2">
+            <p className="text-lg font-bold">SECRET MODE UNLOCKED</p>
+            <p className="text-sm opacity-80">You found the hidden pixel. Ready to switch dimensions?</p>
+        </div>
+
+        <button 
+            onClick={onToggle}
+            className={`
+                relative w-16 h-8 rounded-full transition-colors duration-300 focus:outline-none border-2 border-black
+                ${isSynthwave ? 'bg-[#ff00ff]' : 'bg-gray-300'}
+            `}
+        >
+            <div 
+                className={`
+                    absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white border-2 border-black transition-transform duration-300 shadow-md flex items-center justify-center text-[10px]
+                    ${isSynthwave ? 'translate-x-8' : 'translate-x-0'}
+                `}
+            >
+                {isSynthwave ? '🌴' : '💾'}
+            </div>
+        </button>
+
+        <p className="text-xs font-bold uppercase tracking-widest">
+            {isSynthwave ? "SYNTHWAVE ACTIVE" : "RETRO MODE ACTIVE"}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4 font-mono">
+      <h2 className="text-xl font-bold uppercase border-b-2 border-red-600 text-red-600 pb-2">ENCRYPTED FILE</h2>
+      <div className="bg-black text-green-500 p-4 text-xs overflow-hidden h-32 font-mono break-all">
+        {Array.from({ length: 10 }).map((_, i) => (
+            <span key={i} className="opacity-50">
+                01001000 01000101 01001100 01010000 00100000 01001101 01000101 
+                {["A7X9B", "K2L9P", "M4N5Q", "R8S1T", "U3V6W", "X9Y2Z", "B5C8D", "E1F4G", "H7I0J", "K3L6M"][i]} 
+                X8F3-99 
+            </span>
+        ))}
+      </div>
+      <form onSubmit={handleDecrypt} className="flex flex-col gap-2">
+        <label className="font-bold text-sm">ENTER PASSCODE:</label>
+        <div className="flex gap-2">
+          <input 
+            type="text" 
+            value={passcode}
+            onChange={(e) => setPasscode(e.target.value)}
+            className="border-2 border-black p-2 flex-1 focus:outline-none uppercase font-mono"
+            placeholder="????"
+            maxLength={4}
+          />
+          <button type="submit" className="bg-black text-white px-4 font-bold hover:bg-gray-800 border-2 border-transparent hover:border-black transition-colors">
+            DECRYPT
+          </button>
+        </div>
+        {error && <p className="text-red-600 font-bold text-sm animate-pulse">ACCESS DENIED. INCORRECT PASSCODE.</p>}
+      </form>
+      <p className="text-xs text-gray-500 italic mt-4">Hint: The key lies within the contact information...</p>
+    </div>
+  );
+}
+
+function BinaryText() {
+  const [decoded, setDecoded] = useState(false);
+  
+  return (
+    <div 
+      className="font-mono text-[10px] text-gray-400 cursor-pointer hover:text-gray-600 transition-colors select-none mt-8 pt-4 border-t border-gray-200"
+      onClick={() => setDecoded(!decoded)}
+    >
+      {decoded ? (
+        <span className="text-green-600 font-bold text-sm">ThisIsCool.</span>
+      ) : (
+        <div className="flex flex-col leading-tight">
+            <span>01010100 01101000 01101001 01110011</span>
+            <span>01101001 01110011 01100011 01101111</span>
+            <span>01101111 01101100</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function Desktop({ openWindows, toggleWindow, photos, onMatrix, isSynthwave, setIsSynthwave }: DesktopProps) {
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [showBSOD, setShowBSOD] = useState(false);
   const [gravityEnabled, setGravityEnabled] = useState(false);
+  const [isHolo, setIsHolo] = useState(false);
+  const [rotation, setRotation] = useState({ x: 0, y: 0 });
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const clickCountRef = useRef(0);
+
+  const handleSynthwaveToggle = () => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+        setIsSynthwave(!isSynthwave);
+        setIsTransitioning(false);
+    }, 2500);
+  };
+
+  // Hologram Effect
+  useEffect(() => {
+    if (!isHolo) {
+        setRotation({ x: 0, y: 0 });
+        return;
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
+        const x = (window.innerWidth / 2 - e.clientX) / 25;
+        const y = (window.innerHeight / 2 - e.clientY) / 25;
+        setRotation({ x: y, y: -x });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [isHolo]);
 
   // Gravity Effect
   useEffect(() => {
@@ -118,6 +261,9 @@ export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }:
   }, [gravityEnabled]);
 
   const handleStatusClick = () => {
+    // Disable easter egg on mobile
+    if (window.innerWidth < 768) return;
+
     clickCountRef.current += 1;
     
     if (clickTimeoutRef.current) {
@@ -148,20 +294,55 @@ export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }:
     { label: "Financial AI Advisor.txt", type: "file" },
     { label: "Winter Arc App.txt", type: "file" },
     { label: "More Projects.txt", type: "file" },
+    { label: "classified.enc", type: "file" },
   ];
 
   return (
     <div
-      className="flex-1 relative p-4 overflow-y-auto md:overflow-hidden flex flex-col md:block desktop-background"
+      className={`flex-1 relative p-4 overflow-y-auto md:overflow-hidden flex flex-col md:block desktop-background ${isSynthwave ? 'synthwave-mode' : ''}`}
       onClick={() => setSelectedIcon(null)}
+      style={{
+        perspective: isHolo || isSynthwave ? "1000px" : "none",
+        transformStyle: isHolo || isSynthwave ? "preserve-3d" : "flat",
+      }}
     >
+      {isSynthwave && <SynthwaveBackground />}
+      
+      {/* Transition Overlay */}
+      <AnimatePresence>
+      {isTransitioning && (
+        <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+            className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center text-[#ff00ff] font-mono space-y-4 pointer-events-none"
+        >
+            <div className="text-4xl md:text-6xl font-bold text-center tracking-widest animate-pulse">
+                {isSynthwave ? "DISENGAGING GRID..." : "INITIALIZING RETRO DRIVE..."}
+            </div>
+            <div className="text-xl md:text-2xl tracking-widest animate-pulse">LET'S GO FOR A RIDE</div>
+        </motion.div>
+      )}
+      </AnimatePresence>
+
+      <div 
+        className="w-full h-full absolute inset-0 pointer-events-none flex flex-col md:block"
+        style={{
+            transform: isHolo ? `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)` : isSynthwave ? "rotateX(15deg) translateY(-50px)" : "none",
+            transformStyle: "preserve-3d",
+            transition: "transform 0.5s ease-out",
+        }}
+      >
       {/* Widgets Area */}
-      <div className="relative md:absolute md:top-4 md:right-4 flex flex-row md:flex-col gap-4 items-end md:items-end z-10 pointer-events-none w-full md:w-auto mt-auto md:mt-0 order-2 md:order-0 pb-24 md:pb-0 justify-center md:justify-start">
+      <div className="relative md:absolute md:top-4 md:right-4 flex flex-row md:flex-col gap-4 items-end md:items-end z-10 pointer-events-auto w-full md:w-auto mt-auto md:mt-0 order-2 md:order-0 pb-24 md:pb-0 justify-center md:justify-start"
+        style={{ transform: isHolo ? "translateZ(50px)" : "none" }}
+      >
         <div className="pointer-events-auto w-auto flex justify-center md:block">
              <ProfileWidget />
         </div>
         <div 
-            className="pointer-events-auto w-auto flex justify-center md:block cursor-pointer active:scale-95 transition-transform"
+            className="pointer-events-auto w-auto flex justify-center md:block cursor-pointer active:scale-95 transition-transform gravity-element"
             onClick={(e) => {
                 e.stopPropagation();
                 handleStatusClick();
@@ -175,38 +356,57 @@ export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }:
       {showBSOD && <BSOD onClose={() => setShowBSOD(false)} />}
 
       {/* Desktop Icons Grid */}
-      <div className="relative md:absolute md:top-4 md:left-4 flex flex-row flex-wrap md:flex-col gap-4 md:h-[calc(100%-2rem)] content-start items-start w-full md:w-fit justify-center md:justify-start order-1 md:order-0 mb-4 md:mb-0">
-         {icons.map((icon) => (
-          <div key={icon.label} onDoubleClick={() => toggleWindow(icon.label)} className="md:block hidden">
-              <DesktopIcon
-                label={icon.label}
-                type={icon.type}
-                selected={selectedIcon === icon.label}
-                onClick={(e) => { e.stopPropagation(); setSelectedIcon(icon.label); }}
-              />
-          </div>
+      <div 
+        className="grid grid-cols-3 md:grid-cols-1 gap-4 md:gap-8 w-full md:w-auto mt-4 md:mt-8 ml-4 md:ml-8 order-1 md:order-1 pointer-events-auto"
+        style={{ transform: isHolo ? "translateZ(30px)" : "none" }}
+      >
+        {icons.map((icon) => (
+          <DesktopIcon
+            key={icon.label}
+            label={icon.label}
+            type={icon.type}
+            selected={selectedIcon === icon.label}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedIcon(icon.label);
+              toggleWindow(icon.label);
+            }}
+          />
         ))}
-         {icons.map((icon) => (
-          <div key={icon.label + "-mobile"} className="md:hidden block">
-              <DesktopIcon
-                label={icon.label}
-                type={icon.type}
-                selected={selectedIcon === icon.label}
-                onClick={() => toggleWindow(icon.label)}
-              />
-          </div>
+      </div>
+
+      {/* Project Icons (Bottom Left) - REMOVED TO PREVENT OVERLAP
+      <div 
+        className="hidden md:grid grid-cols-1 gap-8 absolute bottom-24 left-4 pointer-events-auto"
+        style={{ transform: isHolo ? "translateZ(30px)" : "none" }}
+      >
+        {projectIcons.map((icon) => (
+          <DesktopIcon
+            key={icon.label}
+            label={icon.label}
+            type={icon.type}
+            selected={selectedIcon === icon.label}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedIcon(icon.label);
+              toggleWindow(icon.label);
+            }}
+          />
         ))}
+      </div>
+      */}
       </div>
 
 
       {/* Windows */}
-      {openWindows.map((title) => (
+      {openWindows.map((title, index) => (
         <Window
           key={title}
           title={title}
           isOpen={true}
           onClose={() => toggleWindow(title)}
           center={title === "About Me.txt"}
+          index={index}
         >
           {title === "About Me.txt" && (
             <div className="space-y-4">
@@ -215,6 +415,8 @@ export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }:
                 <p>My profile highlights hands-on experience building full-stack projects, combining frontend, backend, and AI integration skills to create practical, functional applications. I position myself as someone who is constantly learning, experimenting, and improving through real projects rather than theory alone.</p>
                 <p>I am also open to internship opportunities, especially in SDE, Full-Stack, or GenAI roles, showing a strong desire to work in fast-moving, impact-driven environments.</p>
                 <p>I am a motivated developer who enjoys building, shipping, and exploring cutting-edge AI technologies while contributing to meaningful product ideas.</p>
+                
+                <BinaryText />
             </div>
           )}
           {title === "Education.txt" && (
@@ -324,7 +526,7 @@ export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }:
                         </div>
                     </div>
 
-                    <div className="p-2 border border-black bg-gray-100">
+                    <div className={`p-2 border ${isSynthwave ? 'border-[#00f7ff] bg-black/50 text-[#00f7ff] shadow-[0_0_5px_#00f7ff]' : 'border-black bg-gray-100'}`}>
                         <p className="text-sm font-mono"><strong>Current Focus:</strong> Data Structures & Algorithms (DSA)</p>
                     </div>
                 </div>
@@ -333,8 +535,8 @@ export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }:
           {title === "Projects" && (
              <div className="grid grid-cols-3 gap-4">
                 {projectIcons.map((icon) => (
-                    <div key={icon.label} className="flex flex-col items-center cursor-pointer hover:bg-gray-200 p-2 rounded" onDoubleClick={() => toggleWindow(icon.label)}>
-                        <div className="w-10 h-10 border border-black flex items-center justify-center bg-white mb-1">
+                    <div key={icon.label} className={`flex flex-col items-center cursor-pointer p-2 rounded ${isSynthwave ? 'hover:bg-[#ff00ff]/20 text-[#00f7ff]' : 'hover:bg-gray-200'}`} onClick={() => toggleWindow(icon.label)}>
+                        <div className={`w-10 h-10 border flex items-center justify-center mb-1 ${isSynthwave ? 'border-[#00f7ff] bg-black text-[#00f7ff] shadow-[0_0_5px_#00f7ff]' : 'border-black bg-white'}`}>
                             <span className="text-xs">{icon.type === 'folder' ? 'DIR' : 'FILE'}</span>
                         </div>
                         <span className="text-xs text-center">{icon.label}</span>
@@ -409,11 +611,14 @@ export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }:
           {title === "More Projects.txt" && (
             <div className="space-y-4">
                 <h2 className="text-xl font-bold uppercase border-b-2 border-black pb-2">More Projects</h2>
-                <div className="p-4 border-2 border-black bg-gray-100 text-center">
+                <div className={`p-4 border-2 text-center ${isSynthwave ? 'border-[#ff00ff] bg-black/50 text-[#ff00ff] shadow-[0_0_10px_#ff00ff]' : 'border-black bg-gray-100'}`}>
                     <p className="font-bold text-lg mb-2">Want to see more?</p>
                     <p>DM me on X <a href="https://x.com/PunkCompiler" className="underline font-bold">@PunkCompiler</a> to get access to my full GitHub repositories and other portfolio projects that contain all my detailed information.</p>
                 </div>
             </div>
+          )}
+          {title === "classified.enc" && (
+            <SecretFileContent isSynthwave={isSynthwave} onToggle={handleSynthwaveToggle} />
           )}
           {title === "Contact Info.txt" && (
             <div className="space-y-4">
@@ -431,8 +636,11 @@ export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }:
                         <span className="font-bold w-20">GitHub:</span>
                         <a href="https://x.com/PunkCompiler" className="underline hover:no-underline">DM on X for GitHub(just to mentain annonymity of myself)</a>
                     </div>
+                    <div className="opacity-0 hover:opacity-100 transition-opacity text-[10px] text-gray-400 mt-8 cursor-default select-none">
+                        Passcode: PUNK
+                    </div>
                 </div>
-                <div className="mt-4 p-4 border-2 border-black bg-gray-100 text-center">
+                <div className={`mt-4 p-4 border-2 text-center ${isSynthwave ? 'border-[#ff00ff] bg-black/50 text-[#ff00ff] shadow-[0_0_10px_#ff00ff]' : 'border-black bg-gray-100'}`}>
                     <p className="font-bold">Available for freelance work!</p>
                 </div>
             </div>
@@ -440,7 +648,7 @@ export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }:
           {title === "Macintosh HD" && (
              <div className="grid grid-cols-3 gap-4">
                 {icons.map((icon) => (
-                    <div key={icon.label} className="flex flex-col items-center cursor-pointer hover:bg-gray-200 p-2 rounded" onDoubleClick={() => toggleWindow(icon.label)}>
+                    <div key={icon.label} className="flex flex-col items-center cursor-pointer hover:bg-gray-200 p-2 rounded" onClick={() => toggleWindow(icon.label)}>
                         <div className="w-10 h-10 border border-black flex items-center justify-center bg-white mb-1">
                             <span className="text-xs">{icon.type === 'folder' ? 'DIR' : 'FILE'}</span>
                         </div>
@@ -495,7 +703,7 @@ export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }:
                             <p className="text-lg font-serif italic text-gray-800">"Stay hungry, stay foolish."</p>
                         </div>
                         
-                        <div className="mt-4 p-3 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        <div className={`mt-4 p-3 border-2 ${isSynthwave ? 'border-[#00f7ff] bg-black/80 text-[#00f7ff] shadow-[0_0_10px_#00f7ff]' : 'border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'}`}>
                             <p className="font-bold">🎉 EASTER EGG FOUND</p>
                             <p className="text-xs mt-1">You entered the Konami Code. Here is a cookie: 🍪</p>
                             <p className="text-xs mt-2 text-gray-500 border-t border-gray-200 pt-2">
@@ -516,6 +724,15 @@ export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }:
                             <p className="text-xs mt-1 text-gray-500">
                                 HINT 6: Warning: The 'gravity' command in terminal is experimental. Use at your own risk.
                             </p>
+                            <p className="text-xs mt-1 text-gray-500">
+                                HINT 7: When the system crashes, don't panic. Try the power button a few times.
+                            </p>
+                            <p className="text-xs mt-1 text-gray-500">
+                                HINT 9: Want to see the future? Type 'holo' in the terminal for a 3D experience.
+                            </p>
+                            <p className="text-xs mt-1 text-gray-500">
+                                HINT 10: Night drive? Check the Projects folder for a classified file.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -531,7 +748,7 @@ export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }:
                     {photos.map((photo) => (
                         <div 
                             key={photo} 
-                            className="aspect-square border-2 border-black bg-gray-200 flex items-center justify-center relative overflow-hidden group cursor-pointer"
+                            className={`aspect-square border-2 flex items-center justify-center relative overflow-hidden group cursor-pointer ${isSynthwave ? 'border-[#ff00ff] bg-black/50' : 'border-black bg-gray-200'}`}
                             onClick={() => setSelectedPhoto(photo)}
                         >
                             <Image 
@@ -555,6 +772,8 @@ export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }:
                 onMatrix={onMatrix} 
                 onOpenSnake={() => toggleWindow("Snake")}
                 onGravity={() => setGravityEnabled(true)}
+                onHolo={() => setIsHolo(prev => !prev)}
+                onSynthwave={() => setIsSynthwave(prev => !prev)}
             />
           )}
           {title === "Snake" && (
@@ -562,6 +781,11 @@ export default function Desktop({ openWindows, toggleWindow, photos, onMatrix }:
           )}
         </Window>
       ))}
+
+      {/* Music Player (Synthwave Mode Only) */}
+      <AnimatePresence>
+        {isSynthwave && <MusicPlayer />}
+      </AnimatePresence>
 
       {/* Full Screen Photo View */}
       {selectedPhoto && (

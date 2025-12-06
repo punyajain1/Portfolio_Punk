@@ -106,3 +106,81 @@ body {
   95% { opacity: 0.99; }
   100% { opacity: 0.94; }
 }
+
+/* Synthwave Mode Styles */
+.synthwave-mode.desktop-background {
+  background-image: none !important;
+  background-color: transparent !important;
+}
+
+.synthwave-mode .gravity-element {
+  border-color: #00f7ff !important;
+  box-shadow: 0 0 15px #00f7ff, inset 0 0 20px rgba(0, 247, 255, 0.1) !important;
+  background: rgba(11, 0, 20, 0.85) !important;
+  color: #fff !important;
+}
+
+.synthwave-mode .gravity-element .handle {
+  background: linear-gradient(90deg, #ff0055, #7700ff) !important;
+  border-bottom: 1px solid #00f7ff !important;
+}
+
+.synthwave-mode .gravity-element .handle span {
+  background: transparent !important;
+  color: #fff !important;
+  text-shadow: 0 0 5px #fff;
+}
+
+.synthwave-mode .gravity-element .handle div {
+  border-color: #fff !important;
+  background: transparent !important;
+  color: #fff !important;
+}
+
+.synthwave-mode .gravity-element .handle div:hover {
+  background: #fff !important;
+  color: #ff0055 !important;
+}
+
+.synthwave-mode .gravity-element h2 {
+  border-color: #ff0055 !important;
+  color: #00f7ff !important;
+  text-shadow: 0 0 5px #00f7ff;
+}
+
+.synthwave-mode .gravity-element p, 
+.synthwave-mode .gravity-element li,
+.synthwave-mode .gravity-element span {
+  color: #e0e0e0 !important;
+}
+
+.synthwave-mode .gravity-element strong {
+  color: #ff0055 !important;
+}
+
+.synthwave-mode .gravity-element a {
+  color: #00f7ff !important;
+}
+
+.synthwave-mode .gravity-element .border-black {
+  border-color: #7700ff !important;
+}
+
+/* Icon Styles in Synthwave Mode */
+.synthwave-mode .flex-col span {
+  color: #00f7ff !important;
+  text-shadow: 0 0 5px #00f7ff;
+  background: rgba(0,0,0,0.7);
+  padding: 2px 4px;
+}
+
+.synthwave-mode .flex-col .bg-white {
+  background: rgba(0, 0, 0, 0.5) !important;
+  border-color: #ff0055 !important;
+  box-shadow: 0 0 10px #ff0055;
+}
+
+.synthwave-mode .flex-col .bg-black {
+  background: #00f7ff !important;
+  box-shadow: 0 0 10px #00f7ff;
+}

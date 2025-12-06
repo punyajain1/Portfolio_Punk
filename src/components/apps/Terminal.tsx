@@ -7,9 +7,11 @@ interface TerminalProps {
   onMatrix: () => void;
   onOpenSnake: () => void;
   onGravity: () => void;
+  onHolo: () => void;
+  onSynthwave: () => void;
 }
 
-export default function Terminal({ onClose, onMatrix, onOpenSnake, onGravity }: TerminalProps) {
+export default function Terminal({ onClose, onMatrix, onOpenSnake, onGravity, onHolo, onSynthwave }: TerminalProps) {
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<string[]>([
     "Welcome to PortfolioOS Terminal v∞",
@@ -44,7 +46,15 @@ export default function Terminal({ onClose, onMatrix, onOpenSnake, onGravity }: 
           "  matrix    - Enter the Matrix",
           "  snake     - Play a game",
           "  gravity   - ???",
-          "  date      - Current date/time"
+          "  holo      - 3D Mode",
+          "  date      - Current date/time",
+          "  hint      - Need a clue?"
+        );
+        break;
+      case "hint":
+        newHistory.push(
+            "There is a locked file in the Projects directory.",
+            "The key is hidden where you find my contact details."
         );
         break;
       case "about":
@@ -102,6 +112,12 @@ export default function Terminal({ onClose, onMatrix, onOpenSnake, onGravity }: 
         setTimeout(() => {
             onGravity();
         }, 1000);
+        break;
+      case "holo":
+        newHistory.push("Initializing Holographic Display...");
+        setTimeout(() => {
+            onHolo();
+        }, 500);
         break;
       case "date":
         newHistory.push(new Date().toString());

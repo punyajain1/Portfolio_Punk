@@ -16,6 +16,7 @@ export default function ClientHome({ photos }: ClientHomeProps) {
   const [openWindows, setOpenWindows] = useState<string[]>(["About Me.txt"]);
   const [isRetro, setIsRetro] = useState(false);
   const [showMatrix, setShowMatrix] = useState(false);
+  const [isSynthwave, setIsSynthwave] = useState(false);
 
   // Konami Code Easter Egg
   useEffect(() => {
@@ -47,7 +48,13 @@ export default function ClientHome({ photos }: ClientHomeProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [openWindows]); // Add openWindows to dependency if toggleWindow depends on it, or use functional update in toggleWindow
+  }, []);
+
+  // Console Easter Egg
+  useEffect(() => {
+    console.log("%cHello, curious developer 👀", "color:#6cf; font-size:16px;");
+    console.log("Explorers are my favorite kind of people.");
+  }, []);
 
   const toggleWindow = (title: string) => {
     setOpenWindows((prev) => {
@@ -71,6 +78,7 @@ export default function ClientHome({ photos }: ClientHomeProps) {
             onOpenPhotos={() => toggleWindow("Photos")}
             onOpenTerminal={() => toggleWindow("Terminal")}
             toggleRetro={() => setIsRetro(!isRetro)}
+            isSynthwave={isSynthwave}
           />
           <div className="flex-1 pt-8 flex flex-col relative">
             <Desktop 
@@ -78,8 +86,10 @@ export default function ClientHome({ photos }: ClientHomeProps) {
                 toggleWindow={toggleWindow} 
                 photos={photos} 
                 onMatrix={() => setShowMatrix(true)}
+                isSynthwave={isSynthwave}
+                setIsSynthwave={setIsSynthwave}
             />
-            <Dock onOpenWindow={toggleWindow} />
+            <Dock onOpenWindow={toggleWindow} isSynthwave={isSynthwave} />
           </div>
           {showMatrix && <MatrixRain onClose={() => setShowMatrix(false)} />}
         </>
